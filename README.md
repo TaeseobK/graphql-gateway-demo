@@ -8,7 +8,7 @@ It contains no company code. The downstream service is an in-memory stand-in so 
 
 ## Architecture
 
-`@mermaid
+```mermaid
 flowchart LR
     Client -->|"GraphQL + Bearer token"| Gateway
     subgraph Gateway["Gateway (FastAPI + Strawberry)"]
@@ -20,7 +20,7 @@ flowchart LR
     Resolvers -->|"XADD employee.events"| Stream[("Redis Stream")]
     Stream -->|"consumer group: notifications"| N["Notification worker"]
     Stream -->|"consumer group: audit"| A["Audit worker"]
-`@
+```
 
 ## Ideas shown here
 
@@ -30,24 +30,24 @@ flowchart LR
 
 ## Run the tests
 
-`@bash
+```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pytest -q
-`@
+```
 
 The tests cover: anonymous requests are denied, a reader can list and filter, a reader cannot write, and one write reaches every consumer group.
 
 ## Run it locally
 
-`@bash
+```bash
 export GATEWAY_JWT_SECRET="a-long-random-secret"
 export EMPLOYEE_SERVICE_URL="http://localhost:8001"
 export REDIS_URL="redis://localhost:6379/0"
 
 uvicorn app.fake_employee_service:create_service --factory --port 8001 &
 uvicorn app.main:create_app --factory --port 8000
-`@
+```
 
 GraphQL is served at `http://localhost:8000/graphql`. Tokens are HS256 JWTs with a `permissions` claim (see `issue_token` in `app/auth.py`). Reads work without Redis running; mutations need a Redis instance because they publish an event.
 
